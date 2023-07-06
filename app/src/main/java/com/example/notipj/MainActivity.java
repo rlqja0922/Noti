@@ -5,9 +5,13 @@ import static androidx.constraintlayout.widget.ConstraintLayoutStates.TAG;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.service.notification.NotificationListenerService;
@@ -30,7 +34,7 @@ public class MainActivity extends AppCompatActivity  {
     private TextView apply_tv,apply_tv2,textView_noti,textView_noti2,textView_api,textView_api2;
     private RetrofitNoti retrofitInterface;
     private String apply_st;
-    private Context context;
+    protected Context context;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,13 +50,22 @@ public class MainActivity extends AppCompatActivity  {
         context = getApplicationContext();
         url_et.setText(SharedStore.getIpPort(context));
         apply_st = url_et.getText().toString();
+        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.TIRAMISU){
+            if (!NotificationManagerCompat.from(context).areNotificationsEnabled()){
+                if (ContextCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(MainActivity.this, new String[]{ android.Manifest.permission.POST_NOTIFICATIONS},101);
+                }   }
+        }else{
+
+        }
         apply_tv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent serviceIntent = new Intent(getApplicationContext(), Foreground.class);// MyBackgroundService 를 실행하는 인텐트 생성
                 stopService(serviceIntent);
                 SharedStore.setIpPort(getApplicationContext(),url_et.getText().toString());
-                urlOk();
+//                urlOk();
+                service();
             }
         });
         apply_tv2.setOnClickListener(new View.OnClickListener() {
@@ -66,6 +79,11 @@ public class MainActivity extends AppCompatActivity  {
 
     public void service(){
         Intent serviceIntent = new Intent(this, Foreground.class);// MyBackgroundService 를 실행하는 인텐트 생성
+
+        if (SharedStore.getService(context)){
+            stopService(serviceIntent);
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) { // 현재 안드로이드 버전 점검
             startForegroundService(serviceIntent);// 서비스 인텐트를 전달한 foregroundService 시작 메서드 실행
         }else {
@@ -92,10 +110,7 @@ public class MainActivity extends AppCompatActivity  {
                         NotificationData notificationData = response.body();
                         boolean status = notificationData.getStatus();
 
-                        Intent serviceIntent = new Intent(context, Foreground.class);// MyBackgroundService 를 실행하는 인텐트 생성
-                        if (SharedStore.getService(context)){
-                            stopService(serviceIntent);
-                        }
+
                         SharedStore.setFirst(context,false);
                         SharedStore.setService(context,true);
                         SharedStore.setIpPort(context,apply_st);
