@@ -9,6 +9,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -20,6 +21,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.Set;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -54,15 +58,24 @@ public class MainActivity extends AppCompatActivity  {
             if (!NotificationManagerCompat.from(context).areNotificationsEnabled()){
                 if (ContextCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(MainActivity.this, new String[]{ android.Manifest.permission.POST_NOTIFICATIONS},101);
-                }   }
+                }
+            }
         }else{
 
+        }
+
+
+        //Notification 허락 여부 확인
+        boolean isPermissionAllowed = isNotiPermissionAllowed();
+
+        if(!isPermissionAllowed) {
+            Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+            startActivity(intent);
+            Toast.makeText(context,"알림 접근 허용 권한을 체크해주세요.",Toast.LENGTH_LONG);
         }
         apply_tv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent serviceIntent = new Intent(getApplicationContext(), Foreground.class);// MyBackgroundService 를 실행하는 인텐트 생성
-                stopService(serviceIntent);
                 SharedStore.setIpPort(getApplicationContext(),url_et.getText().toString());
 //                urlOk();
                 service();
@@ -76,12 +89,25 @@ public class MainActivity extends AppCompatActivity  {
         });
     }
 
+    private boolean isNotiPermissionAllowed() {
+        Set<String> notiListenerSet = NotificationManagerCompat.getEnabledListenerPackages(this);
+        //Notification권한이 있는 경우
+        if(notiListenerSet.contains(getPackageName())) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
+    @Override
+    public boolean stopService(Intent name) {
+        return super.stopService(name);
+    }
     public void service(){
         Intent serviceIntent = new Intent(this, Foreground.class);// MyBackgroundService 를 실행하는 인텐트 생성
 
         if (SharedStore.getService(context)){
-            stopService(serviceIntent);
+//            stopService(serviceIntent);
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) { // 현재 안드로이드 버전 점검

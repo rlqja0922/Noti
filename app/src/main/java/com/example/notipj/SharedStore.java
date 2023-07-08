@@ -21,14 +21,35 @@ public class SharedStore {
         context.getSharedPreferences("MyData", 0).edit().putString("Filter", Filter).apply();
     }
 
-    public static boolean getNoti(Context context){
-        SharedPreferences sharedPreferences = context.getSharedPreferences("MyData",0);
-        return sharedPreferences.getBoolean("Noti",true);
-    }
-    public static void setNoti(Context context, boolean Noti){
-        context.getSharedPreferences("MyData", 0).edit().putBoolean("NotiSound", Noti).apply();
-    }
 
+    public static String getNotiTitle(Context context){
+        SharedPreferences sharedPreferences = context.getSharedPreferences("MyData",0);
+        return sharedPreferences.getString("NotiTitle","");
+    }
+    public static void setNotiTitle(Context context, String NotiTitle){
+        context.getSharedPreferences("MyData", 0).edit().putString("NotiTitle", NotiTitle).apply();
+    }
+    public static String getNotiText(Context context){
+        SharedPreferences sharedPreferences = context.getSharedPreferences("MyData",0);
+        return sharedPreferences.getString("NotiText","");
+    }
+    public static void setNotiText(Context context, String NotiText){
+        context.getSharedPreferences("MyData", 0).edit().putString("NotiText", NotiText).apply();
+    }
+    public static String getNotiSubText(Context context){
+        SharedPreferences sharedPreferences = context.getSharedPreferences("MyData",0);
+        return sharedPreferences.getString("NotiSubText","");
+    }
+    public static void setNotiSubText(Context context, String NotiSubText){
+        context.getSharedPreferences("MyData", 0).edit().putString("NotiSubText", NotiSubText).apply();
+    }
+    public static String getNotiPakage(Context context){
+        SharedPreferences sharedPreferences = context.getSharedPreferences("MyData",0);
+        return sharedPreferences.getString("NotiPakage","");
+    }
+    public static void setNotiPakage(Context context, String NotiPakage){
+        context.getSharedPreferences("MyData", 0).edit().putString("NotiPakage", NotiPakage).apply();
+    }
     public static boolean getService(Context context){
         SharedPreferences sharedPreferences = context.getSharedPreferences("MyData",0);
         return sharedPreferences.getBoolean("Service",true);

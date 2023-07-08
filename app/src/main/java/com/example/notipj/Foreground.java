@@ -5,9 +5,11 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
@@ -22,25 +24,30 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 //NotificationListenerService
-public class Foreground extends NotificationListenerService {
+public class Foreground extends Service  {
 
     public static final String CHANNEL_ID = "ForegroundServiceChannel";
-    private RetrofitNoti retrofitInterface;
-    private int id = 45;
-    static boolean serviceStatus;
-    private NotificationManager mNotificationManager;
-
+    private static int id = 45;
+    private static NotificationManager mNotificationManager;
+    private NotificationCompat.Builder notifyBuilder;
+    private static PendingIntent pendingIntent;
+    private String title,subtext,text,packageName;
+    private static Context context;
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
+
+
     // Notification Builder를 만드는 메소드
-    private NotificationCompat.Builder getNotificationBuilder() {
-        NotificationCompat.Builder notifyBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("You've been notified!")
-                .setContentText("This is your notification text.")
+    private static NotificationCompat.Builder getNotificationBuilder() {
+        NotificationCompat.Builder notifyBuilder = new NotificationCompat.Builder(context, CHANNEL_ID)
+                .setContentTitle(SharedStore.getNotiTitle(context))
+                .setContentText(SharedStore.getNotiText(context))
+                .setOngoing(true)
                 .setSmallIcon(R.drawable.noti);
         return notifyBuilder;
     }
@@ -49,10 +56,12 @@ public class Foreground extends NotificationListenerService {
     // startService() 혹은  startForegroundService() 를 호출하여 서비스를 시작할때마다 호출됨
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        String input = intent.getStringExtra("inputExtra");
+        SharedStore.setService(getApplicationContext(),true);
+        title = "Foreground Service";
+        subtext = "서비스 실행중입니다.";
+        context = getApplicationContext();
         createNotificationChannel();
         Intent notificationIntent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             pendingIntent = PendingIntent.getActivity(this,
                     0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
@@ -64,29 +73,31 @@ public class Foreground extends NotificationListenerService {
         }
 
         // Builder 생성
-        NotificationCompat.Builder notifyBuilder = getNotificationBuilder();
+        notifyBuilder = getNotificationBuilder();
         notifyBuilder.setContentIntent(pendingIntent)
-        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-        .setAutoCancel(false);
+        .setPriority(NotificationCompat.PRIORITY_HIGH);
         // Manager를 통해 notification 디바이스로 전달
         mNotificationManager.notify(id,notifyBuilder.build());
-        //do heavy work on a background thread
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    Log.e("Service", "서비스가 실행 중입니다...");
-                    try {
-                        Thread.sleep(2000);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
 
-                }
-            }
-        }).start();
+//        //do heavy work on a background thread 서비스가 잘돌아가는지 확인용 쓰레드
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                while (true) {
+//                    Log.e("Service", "서비스가 실행 중입니다...");
+//                    try {
+//                        Thread.sleep(2000);
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                }
+//            }
+//        }).start();
         return START_NOT_STICKY;
     }
+
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -110,54 +121,13 @@ public class Foreground extends NotificationListenerService {
             mNotificationManager.createNotificationChannel(notificationChannel);
         }
     }
-    @Nullable
-    public void retrofitNoti(){
-        String url = SharedStore.getIpPort(getApplicationContext());
-        try {
-            retrofit2.Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl(url)
-                    .addConverterFactory(ScalarsConverterFactory.create())
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
-            retrofitInterface = retrofit.create(RetrofitNoti.class);
-            NotificationData notificationdata = new NotificationData("dd","tt","name");
-            Call<NotificationData> call = retrofitInterface.getnotification(notificationdata);
-            call.enqueue(new Callback<NotificationData>() {
-                @Override
-                public void onResponse(Call<NotificationData> call, Response<NotificationData> response) {
-                    if (response.isSuccessful()) {
-                        NotificationData notificationData = response.body();
-                        boolean status = notificationData.getStatus();
+    public static void updateNoit(){
 
-                    }
-
-                }
-
-                @Override
-                public void onFailure(Call<NotificationData> call, Throwable t) {
-
-                    stopSelf();
-                }
-            });
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        NotificationCompat.Builder notifyBuilder = getNotificationBuilder();
+        notifyBuilder.setContentIntent(pendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_HIGH);
+        // Manager를 통해 notification 디바이스로 전달
+        mNotificationManager.notify(id,notifyBuilder.build());
     }
 
-    @Override
-    public void onNotificationRemoved(StatusBarNotification sbn) {
-        super.onNotificationRemoved(sbn);
-        Log.d("Notiremove",sbn.getNotification().toString());
-    }
-
-    @Override
-    public void onNotificationPosted(StatusBarNotification sbn) {
-        super.onNotificationPosted(sbn);
-        String filter = SharedStore.getFilter(getApplicationContext());
-        sbn.getNotification();
-        Log.d("Notifilter",sbn.getNotification().toString());
-
-        retrofitNoti();
-    }
 }
