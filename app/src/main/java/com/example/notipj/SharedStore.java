@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 public class SharedStore {
     public static String getIpPort(Context context){
         SharedPreferences sharedPreferences = context.getSharedPreferences("MyData",0);
-        return sharedPreferences.getString("IpPort","null");
+        return sharedPreferences.getString("IpPort","");
     }
     public static void setIpPort(Context context, String IpPort){
         context.getSharedPreferences("MyData",0).edit().putString("IpPort",IpPort).apply();
@@ -15,7 +15,7 @@ public class SharedStore {
 
     public static String getFilter(Context context){
         SharedPreferences sharedPreferences = context.getSharedPreferences("MyData",0);
-        return sharedPreferences.getString("Filter","null");
+        return sharedPreferences.getString("Filter","");
     }
     public static void setFilter(Context context, String Filter){
         context.getSharedPreferences("MyData", 0).edit().putString("Filter", Filter).apply();
@@ -52,7 +52,7 @@ public class SharedStore {
     }
     public static boolean getService(Context context){
         SharedPreferences sharedPreferences = context.getSharedPreferences("MyData",0);
-        return sharedPreferences.getBoolean("Service",true);
+        return sharedPreferences.getBoolean("Service",false);
     }
     public static void setService(Context context, boolean Service){
         context.getSharedPreferences("MyData", 0).edit().putBoolean("Service", Service).apply();
@@ -64,5 +64,13 @@ public class SharedStore {
     }
     public static void setFirst(Context context, boolean First){
         context.getSharedPreferences("MyData", 0).edit().putBoolean("First", First).apply();
+    }
+
+    public static boolean getRetrofit(Context context){
+        SharedPreferences sharedPreferences = context.getSharedPreferences("MyData",0);
+        return sharedPreferences.getBoolean("Retrofit",false);
+    }
+    public static void setRetrofit(Context context, boolean Retrofit){
+        context.getSharedPreferences("MyData", 0).edit().putBoolean("Retrofit", Retrofit).apply();
     }
 }

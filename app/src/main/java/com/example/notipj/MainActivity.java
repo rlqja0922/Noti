@@ -1,22 +1,30 @@
 package com.example.notipj;
 
+import static android.net.wifi.WifiConfiguration.Status.strings;
 import static androidx.constraintlayout.widget.ConstraintLayoutStates.TAG;
 
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -63,22 +71,32 @@ public class MainActivity extends AppCompatActivity  {
         }else{
 
         }
+        if (!SharedStore.getService(context)){
+            SharedStore.setRetrofit(context,false);
+        }
+        if (SharedStore.getRetrofit(context)){
+            textView_api.setText(getString(R.string.api_notext1));
+            textView_api2.setText(getString(R.string.api_notext2));
+        }
 
 
         //Notification 허락 여부 확인
         boolean isPermissionAllowed = isNotiPermissionAllowed();
 
         if(!isPermissionAllowed) {
+            Toast.makeText(context,"알림 접근 허용 권한을 체크해주세요.",Toast.LENGTH_LONG).show();
             Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
             startActivity(intent);
-            Toast.makeText(context,"알림 접근 허용 권한을 체크해주세요.",Toast.LENGTH_LONG);
         }
         apply_tv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SharedStore.setIpPort(getApplicationContext(),url_et.getText().toString());
-//                urlOk();
-                service();
+                if (url_et.getText().toString().length()==0){
+                    Toast.makeText(context,"URL을 입력해주세요.",Toast.LENGTH_LONG).show();
+                }else {
+                    SharedStore.setIpPort(getApplicationContext(),url_et.getText().toString());
+                    show();
+                }
             }
         });
         apply_tv2.setOnClickListener(new View.OnClickListener() {
@@ -104,11 +122,19 @@ public class MainActivity extends AppCompatActivity  {
         return super.stopService(name);
     }
     public void service(){
+        if (filter_et.getText().toString().length()>0){
+            SharedStore.setFilter(context,filter_et.getText().toString());
+        }else {
+            SharedStore.setFilter(context,"");
+        }
         Intent serviceIntent = new Intent(this, Foreground.class);// MyBackgroundService 를 실행하는 인텐트 생성
 
         if (SharedStore.getService(context)){
-//            stopService(serviceIntent);
+            stopService(serviceIntent);
         }
+
+        //Notification-카카오톡 메세지 수신 대기
+        LocalBroadcastManager.getInstance(this).registerReceiver(onNotice, new IntentFilter("Msg"));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) { // 현재 안드로이드 버전 점검
             startForegroundService(serviceIntent);// 서비스 인텐트를 전달한 foregroundService 시작 메서드 실행
@@ -116,7 +142,26 @@ public class MainActivity extends AppCompatActivity  {
             startService(serviceIntent);// 서비스 인텐트를 전달한 서비스 시작 메서드 실행
         }
     }
+    public void show(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("URL ");
+        builder.setMessage("Are you sure change?");
+        builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
 
+                urlOk();
+            }
+        });
+        builder.setNegativeButton("Cancle", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+
+        builder.show();
+    }
     @Nullable
     public void urlOk(){
         String url = SharedStore.getIpPort(getApplicationContext());
@@ -147,11 +192,29 @@ public class MainActivity extends AppCompatActivity  {
 
                 @Override
                 public void onFailure(Call<NotificationData> call, Throwable t) {
+                    Toast.makeText(context,"올바르지 않은 URL입니다.",Toast.LENGTH_LONG).show();
                 }
             });
 
         } catch (Exception e) {
+            Toast.makeText(context,"올바르지 않은 URL입니다.",Toast.LENGTH_LONG).show();
             throw new RuntimeException(e);
         }
     }
+    //noti listener 감지시 동작할 브로트캐스트 리시버
+    private BroadcastReceiver onNotice= new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            String subtext = intent.getStringExtra("subtext");
+            String title = intent.getStringExtra("title");
+            String text = intent.getStringExtra("text");
+            textView_noti.setText(title);
+            textView_noti2.setText(text);
+            textView_api.setText(title);
+            textView_api2.setText(text);
+        }
+
+    };
 }

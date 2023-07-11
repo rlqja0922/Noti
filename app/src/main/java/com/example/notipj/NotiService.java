@@ -2,6 +2,8 @@ package com.example.notipj;
 
 import android.app.Notification;
 import android.app.Service;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -10,6 +12,8 @@ import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -22,13 +26,15 @@ public class NotiService extends NotificationListenerService {
 
     private RetrofitNoti retrofitInterface;
     private String title,text,subtext,packageName;
+    private Context context;
     public NotiService() {
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-
+        context = getApplicationContext();
+        subtext = "서브 텍스트가 없습니다.";
     }
 
     @Override
@@ -50,24 +56,47 @@ public class NotiService extends NotificationListenerService {
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
         super.onNotificationPosted(sbn);
-        String filter = SharedStore.getFilter(getApplicationContext());
-        sbn.getNotification();
-        Notification notification = sbn.getNotification();
-        Bundle extras = sbn.getNotification().extras;
 
-        title = extras.getString(Notification.EXTRA_TITLE);
-        packageName = sbn.getPackageName();
-        text = extras.getCharSequence(Notification.EXTRA_TEXT).toString();
-        if (extras.getCharSequence(Notification.EXTRA_SUB_TEXT)!=null){
-            subtext = extras.getCharSequence(Notification.EXTRA_SUB_TEXT).toString();
-        }
-        Log.d("Notifilter",sbn.getNotification().toString());
-        if (packageName!=getPackageName()){
-            if (SharedStore.getService(getApplicationContext())){
-                Foreground.updateNoit();
-//        retrofitNoti();
+        if (SharedStore.getService(context)){
+            String filter = SharedStore.getFilter(context);
+            sbn.getNotification();
+            Notification notification = sbn.getNotification();
+            Bundle extras = sbn.getNotification().extras;
+
+            title = extras.getString(Notification.EXTRA_TITLE);
+            packageName = sbn.getPackageName();
+
+            if (extras.getCharSequence(Notification.EXTRA_TEXT)!=null){
+                text = extras.getCharSequence(Notification.EXTRA_TEXT).toString();
+            }else {
+                text = "텍스트가 없습니다.";
+            }
+
+            if (extras.getCharSequence(Notification.EXTRA_SUB_TEXT)!=null){
+                subtext = extras.getCharSequence(Notification.EXTRA_SUB_TEXT).toString();
+            }else {
+                subtext = "서브 텍스트가 없습니다.";
+            }
+            Log.d("Notifilter",sbn.getNotification().toString());
+            if (packageName!=getPackageName()){
+                if (SharedStore.getFilter(context).length()>0){
+                    if (title.contains(SharedStore.getFilter(context)) || text.contains(SharedStore.getFilter(context)) || subtext.contains(SharedStore.getFilter(context)) ){
+                        SharedStore.setNotiText(context,text);
+                        SharedStore.setNotiSubText(context,subtext);
+                        SharedStore.setNotiPakage(context,packageName);
+                        SharedStore.setNotiTitle(context,title);
+                        Foreground.updateNoit();
+                    }
+                }else {
+                    SharedStore.setNotiText(context,text);
+                    SharedStore.setNotiSubText(context,subtext);
+                    SharedStore.setNotiPakage(context,packageName);
+                    SharedStore.setNotiTitle(context,title);
+                    Foreground.updateNoit();
+                }
             }
         }
+
     }
 
 
@@ -90,6 +119,13 @@ public class NotiService extends NotificationListenerService {
                         NotificationData notificationData = response.body();
                         boolean status = notificationData.getStatus();
 
+                        SharedStore.setRetrofit(context,true);
+
+                        Intent msg = new Intent("Msg");
+                        msg.putExtra("subtext", subtext);
+                        msg.putExtra("title", title);
+                        msg.putExtra("text", text);
+                        LocalBroadcastManager.getInstance(context).sendBroadcast(msg);
                     }
 
                 }
@@ -104,4 +140,5 @@ public class NotiService extends NotificationListenerService {
             throw new RuntimeException(e);
         }
     }
+
 }

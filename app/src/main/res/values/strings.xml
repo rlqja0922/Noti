@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Notipj</string>
+    <string name="url_hint">http://ip : port</string>
+    <string name="noti_no1">No notification</string>
+    <string name="noti_no2">The APP has not received a notification yet.</string>
+    <string name="api_notext2">Check the server is running.</string>
+    <string name="api_notext1">No request</string>
 </resources>
