@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity  {
         context = getApplicationContext();
         url_et.setText(SharedStore.getIpPort(context));
         apply_st = url_et.getText().toString();
+        filter_et.setText(SharedStore.getFilter(context));
         if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.TIRAMISU){
             if (!NotificationManagerCompat.from(context).areNotificationsEnabled()){
                 if (ContextCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
@@ -144,7 +145,7 @@ public class MainActivity extends AppCompatActivity  {
     }
     public void show(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("URL ");
+        builder.setTitle("URL Change");
         builder.setMessage("Are you sure change?");
         builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
             @Override
@@ -210,10 +211,13 @@ public class MainActivity extends AppCompatActivity  {
             String subtext = intent.getStringExtra("subtext");
             String title = intent.getStringExtra("title");
             String text = intent.getStringExtra("text");
+            String type = intent.getStringExtra("type");
+            if (type.equals("url")){
+                textView_api.setText(title);
+                textView_api2.setText(text);
+            }
             textView_noti.setText(title);
             textView_noti2.setText(text);
-            textView_api.setText(title);
-            textView_api2.setText(text);
         }
 
     };

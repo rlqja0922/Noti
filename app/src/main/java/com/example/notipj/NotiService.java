@@ -27,6 +27,7 @@ public class NotiService extends NotificationListenerService {
     private RetrofitNoti retrofitInterface;
     private String title,text,subtext,packageName;
     private Context context;
+    private Intent msg = new Intent("Msg");
     public NotiService() {
     }
 
@@ -79,7 +80,7 @@ public class NotiService extends NotificationListenerService {
             }
             Log.d("Notifilter",sbn.getNotification().toString());
             if (packageName!=getPackageName()){
-                if (SharedStore.getFilter(context).length()>0){
+                if (SharedStore.getFilter(context).length()>0 ){
                     if (title.contains(SharedStore.getFilter(context)) || text.contains(SharedStore.getFilter(context)) || subtext.contains(SharedStore.getFilter(context)) ){
                         SharedStore.setNotiText(context,text);
                         SharedStore.setNotiSubText(context,subtext);
@@ -87,13 +88,23 @@ public class NotiService extends NotificationListenerService {
                         SharedStore.setNotiTitle(context,title);
                         Foreground.updateNoit();
                     }
-                }else {
+                }else if (SharedStore.getFilter(context).equals("")){
                     SharedStore.setNotiText(context,text);
                     SharedStore.setNotiSubText(context,subtext);
                     SharedStore.setNotiPakage(context,packageName);
                     SharedStore.setNotiTitle(context,title);
                     Foreground.updateNoit();
                 }
+
+                msg.putExtra("subtext", subtext);
+                msg.putExtra("title", title);
+                msg.putExtra("text", text);
+                msg.putExtra("tyoe","noti");
+
+                retrofitNoti();
+
+
+                LocalBroadcastManager.getInstance(context).sendBroadcast(msg);
             }
         }
 
@@ -121,11 +132,7 @@ public class NotiService extends NotificationListenerService {
 
                         SharedStore.setRetrofit(context,true);
 
-                        Intent msg = new Intent("Msg");
-                        msg.putExtra("subtext", subtext);
-                        msg.putExtra("title", title);
-                        msg.putExtra("text", text);
-                        LocalBroadcastManager.getInstance(context).sendBroadcast(msg);
+                        msg.putExtra("tyoe","url");
                     }
 
                 }

@@ -101,6 +101,7 @@ public class Foreground extends Service  {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        SharedStore.setService(context,false);
     }
     private void createNotificationChannel() {
         //notification manager 생성
