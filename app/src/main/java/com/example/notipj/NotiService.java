@@ -10,6 +10,7 @@ import android.os.IBinder;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -140,10 +141,12 @@ public class NotiService extends NotificationListenerService {
                 @Override
                 public void onFailure(Call<NotificationData> call, Throwable t) {
 
+                    Toast.makeText(context,"Check the server is running.",Toast.LENGTH_LONG).show();
                 }
             });
 
         } catch (Exception e) {
+            Toast.makeText(context,"Check the server is running.",Toast.LENGTH_LONG).show();
             throw new RuntimeException(e);
         }
     }

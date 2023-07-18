@@ -95,7 +95,6 @@ public class MainActivity extends AppCompatActivity  {
                 if (url_et.getText().toString().length()==0){
                     Toast.makeText(context,"URL을 입력해주세요.",Toast.LENGTH_LONG).show();
                 }else {
-                    SharedStore.setIpPort(getApplicationContext(),url_et.getText().toString());
                     show();
                 }
             }
@@ -142,6 +141,9 @@ public class MainActivity extends AppCompatActivity  {
         }else {
             startService(serviceIntent);// 서비스 인텐트를 전달한 서비스 시작 메서드 실행
         }
+        SharedStore.setIpPort(getApplicationContext(),url_et.getText().toString());
+
+        Toast.makeText(context,"서비스가 시작되었습니다.",Toast.LENGTH_LONG).show();
     }
     public void show(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -181,11 +183,10 @@ public class MainActivity extends AppCompatActivity  {
                     if (response.isSuccessful()) {
                         NotificationData notificationData = response.body();
                         boolean status = notificationData.getStatus();
-
-
                         SharedStore.setFirst(context,false);
                         SharedStore.setService(context,true);
                         SharedStore.setIpPort(context,apply_st);
+
                         service();
                     }
 
@@ -193,12 +194,12 @@ public class MainActivity extends AppCompatActivity  {
 
                 @Override
                 public void onFailure(Call<NotificationData> call, Throwable t) {
-                    Toast.makeText(context,"올바르지 않은 URL입니다.",Toast.LENGTH_LONG).show();
+                    Toast.makeText(context,"Check the server is running.",Toast.LENGTH_LONG).show();
                 }
             });
 
         } catch (Exception e) {
-            Toast.makeText(context,"올바르지 않은 URL입니다.",Toast.LENGTH_LONG).show();
+            Toast.makeText(context,"Check the server is running.",Toast.LENGTH_LONG).show();
             throw new RuntimeException(e);
         }
     }
@@ -215,6 +216,9 @@ public class MainActivity extends AppCompatActivity  {
             if (type.equals("url")){
                 textView_api.setText(title);
                 textView_api2.setText(text);
+            }else {
+                textView_api.setText(R.string.api_notext1);
+                textView_api2.setText(R.string.api_notext2);
             }
             textView_noti.setText(title);
             textView_noti2.setText(text);
