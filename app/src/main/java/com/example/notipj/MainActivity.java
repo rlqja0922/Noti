@@ -95,6 +95,7 @@ public class MainActivity extends AppCompatActivity  {
                 if (url_et.getText().toString().length()==0){
                     Toast.makeText(context,"URL을 입력해주세요.",Toast.LENGTH_LONG).show();
                 }else {
+                    SharedStore.setIpPort(context,url_et.getText().toString());
                     show();
                 }
             }
@@ -194,6 +195,7 @@ public class MainActivity extends AppCompatActivity  {
 
                 @Override
                 public void onFailure(Call<NotificationData> call, Throwable t) {
+                    Log.e("urlerror",t.getMessage());
                     Toast.makeText(context,"Check the server is running.",Toast.LENGTH_LONG).show();
                 }
             });

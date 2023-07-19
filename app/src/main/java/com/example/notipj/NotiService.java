@@ -88,6 +88,16 @@ public class NotiService extends NotificationListenerService {
                         SharedStore.setNotiPakage(context,packageName);
                         SharedStore.setNotiTitle(context,title);
                         Foreground.updateNoit();
+
+                        msg.putExtra("subtext", subtext);
+                        msg.putExtra("title", title);
+                        msg.putExtra("text", text);
+                        msg.putExtra("type","noti");
+
+                        retrofitNoti();
+
+
+                        LocalBroadcastManager.getInstance(context).sendBroadcast(msg);
                     }
                 }else if (SharedStore.getFilter(context).equals("")){
                     SharedStore.setNotiText(context,text);
@@ -95,17 +105,18 @@ public class NotiService extends NotificationListenerService {
                     SharedStore.setNotiPakage(context,packageName);
                     SharedStore.setNotiTitle(context,title);
                     Foreground.updateNoit();
+
+                    msg.putExtra("subtext", subtext);
+                    msg.putExtra("title", title);
+                    msg.putExtra("text", text);
+                    msg.putExtra("type","noti");
+
+                    retrofitNoti();
+
+
+                    LocalBroadcastManager.getInstance(context).sendBroadcast(msg);
                 }
 
-                msg.putExtra("subtext", subtext);
-                msg.putExtra("title", title);
-                msg.putExtra("text", text);
-                msg.putExtra("tyoe","noti");
-
-                retrofitNoti();
-
-
-                LocalBroadcastManager.getInstance(context).sendBroadcast(msg);
             }
         }
 

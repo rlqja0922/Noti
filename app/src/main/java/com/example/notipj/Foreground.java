@@ -60,6 +60,9 @@ public class Foreground extends Service  {
         title = "Foreground Service";
         subtext = "서비스 실행중입니다.";
         context = getApplicationContext();
+        SharedStore.setNotiTitle(context,"Foreground Service");
+        SharedStore.setNotiText(context,"서비스 실행중입니다.");
+        SharedStore.setNotiSubText(context,"서비스 실행중입니다.");
         createNotificationChannel();
         Intent notificationIntent = new Intent(this, MainActivity.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
