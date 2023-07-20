@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.Manifest;
@@ -28,9 +29,11 @@ import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 import retrofit2.Call;
@@ -43,10 +46,16 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
 public class MainActivity extends AppCompatActivity  {
 
     private EditText url_et, filter_et;
-    private TextView apply_tv,apply_tv2,textView_noti,textView_noti2,textView_api,textView_api2;
+    private TextView apply_tv,apply_tv2,textView_noti,textView_noti2,textView_api,textView_api2,filter_go;
     private RetrofitNoti retrofitInterface;
     private String apply_st;
     protected Context context;
+    private ArrayList<String> filter_list;
+    private String filter_key = "filterkey";
+
+    private Fragment fragment;
+
+    private FrameLayout fragment_container;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,7 +71,7 @@ public class MainActivity extends AppCompatActivity  {
         context = getApplicationContext();
         url_et.setText(SharedStore.getIpPort(context));
         apply_st = url_et.getText().toString();
-        filter_et.setText(SharedStore.getFilter(context));
+        filter_list = SharedStore.getStringArrayPref(context,filter_key);
         if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.TIRAMISU){
             if (!NotificationManagerCompat.from(context).areNotificationsEnabled()){
                 if (ContextCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
@@ -103,7 +112,8 @@ public class MainActivity extends AppCompatActivity  {
         apply_tv2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SharedStore.setFilter(getApplicationContext(),filter_et.getText().toString());
+                show2();
+//                SharedStore.setFilter(getApplicationContext(),filter_et.getText().toString());
             }
         });
     }
@@ -155,6 +165,27 @@ public class MainActivity extends AppCompatActivity  {
             public void onClick(DialogInterface dialog, int which) {
 
                 urlOk();
+            }
+        });
+        builder.setNegativeButton("Cancle", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+
+        builder.show();
+    }
+    public void show2(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Filter add");
+        builder.setMessage("Are you sure add filter?");
+        builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                filter_list.add(filter_et.getText().toString());
+                SharedStore.setStringArrayPref(context,filter_key,filter_list);
+                filter_et.setText("");
             }
         });
         builder.setNegativeButton("Cancle", new DialogInterface.OnClickListener() {

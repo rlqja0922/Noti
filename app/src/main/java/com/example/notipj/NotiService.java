@@ -82,7 +82,8 @@ public class NotiService extends NotificationListenerService {
             Log.d("Notifilter",sbn.getNotification().toString());
             if (packageName!=getPackageName()){
                 if (SharedStore.getFilter(context).length()>0 ){
-                    if (title.contains(SharedStore.getFilter(context)) || text.contains(SharedStore.getFilter(context)) || subtext.contains(SharedStore.getFilter(context)) ){
+                    //여기 수정해야됨
+                    if (title.contains(SharedStore.getFilter(context)) || text.contains(SharedStore.getFilter(context)) ){
                         SharedStore.setNotiText(context,text);
                         SharedStore.setNotiSubText(context,subtext);
                         SharedStore.setNotiPakage(context,packageName);
