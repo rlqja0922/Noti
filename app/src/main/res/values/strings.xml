@@ -5,4 +5,6 @@
     <string name="noti_no2">The APP has not received a notification yet.</string>
     <string name="api_notext2">Check the server is running.</string>
     <string name="api_notext1">No request</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

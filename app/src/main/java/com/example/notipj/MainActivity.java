@@ -11,6 +11,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.Manifest;
@@ -53,7 +55,7 @@ public class MainActivity extends AppCompatActivity  {
     private ArrayList<String> filter_list;
     private String filter_key = "filterkey";
 
-    private Fragment fragment;
+    private ListFragment fragment;
 
     private FrameLayout fragment_container;
     @Override
@@ -68,7 +70,24 @@ public class MainActivity extends AppCompatActivity  {
         textView_noti2 = findViewById(R.id.textView_noti2);
         textView_api = findViewById(R.id.textView_api);
         textView_api2 = findViewById(R.id.textView_api2);
+        filter_go = findViewById(R.id.filter_go);
+        fragment_container = findViewById(R.id.fragment_container);
         context = getApplicationContext();
+        fragment = new ListFragment();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction =  fragmentManager.beginTransaction();
+        transaction.replace(R.id.frameLayout, fragment).commitAllowingStateLoss();
+        fragment_container.setVisibility(View.GONE);
+        filter_go.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                fragment = new ListFragment();
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction transaction =  fragmentManager.beginTransaction();
+                transaction.replace(R.id.frameLayout, fragment).commitAllowingStateLoss();
+                fragment_container.setVisibility(View.VISIBLE);
+            }
+        });
         url_et.setText(SharedStore.getIpPort(context));
         apply_st = url_et.getText().toString();
         filter_list = SharedStore.getStringArrayPref(context,filter_key);

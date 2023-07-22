@@ -87,6 +87,7 @@
             app:layout_constraintEnd_toStartOf="@+id/guideline2_1"
             app:layout_constraintStart_toStartOf="@+id/edittext_url"
             app:layout_constraintTop_toTopOf="@+id/guideline_1" />
+
         <FrameLayout
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -160,7 +161,7 @@
             android:id="@+id/filter_go"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:text="filter view >"
+            android:text="filter list >"
             android:gravity="center"
             android:textColor="@color/black"
             android:textSize="15dp"
