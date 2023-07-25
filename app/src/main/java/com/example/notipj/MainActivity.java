@@ -76,7 +76,8 @@ public class MainActivity extends AppCompatActivity  {
         fragment = new ListFragment();
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction =  fragmentManager.beginTransaction();
-        transaction.replace(R.id.frameLayout, fragment).commitAllowingStateLoss();
+        transaction.replace(R.id.fragment_container, fragment).commitAllowingStateLoss();
+        getSupportActionBar().hide();
         fragment_container.setVisibility(View.GONE);
         filter_go.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -84,7 +85,7 @@ public class MainActivity extends AppCompatActivity  {
                 fragment = new ListFragment();
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 FragmentTransaction transaction =  fragmentManager.beginTransaction();
-                transaction.replace(R.id.frameLayout, fragment).commitAllowingStateLoss();
+                transaction.replace(R.id.fragment_container, fragment).commitAllowingStateLoss();
                 fragment_container.setVisibility(View.VISIBLE);
             }
         });
@@ -131,7 +132,8 @@ public class MainActivity extends AppCompatActivity  {
         apply_tv2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                show2();
+                if (filter_et.getText().toString().length()>0)
+                    show2();
 //                SharedStore.setFilter(getApplicationContext(),filter_et.getText().toString());
             }
         });
@@ -277,4 +279,15 @@ public class MainActivity extends AppCompatActivity  {
         }
 
     };
+    public interface onBackPressedListener{
+        void onBackPressed();
+    }
+    @Override
+    public void onBackPressed() {
+        if (fragment_container.getVisibility()!=View.GONE){
+            fragment_container.setVisibility(View.GONE);
+        }else {
+            super.onBackPressed();
+        }
+    }
 }

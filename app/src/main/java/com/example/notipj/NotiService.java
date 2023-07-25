@@ -80,45 +80,45 @@ public class NotiService extends NotificationListenerService {
                 subtext = "서브 텍스트가 없습니다.";
             }
             Log.d("Notifilter",sbn.getNotification().toString());
-            if (packageName!=getPackageName()){
-                if (SharedStore.getFilter(context).length()>0 ){
-                    //여기 수정해야됨
-                    if (title.contains(SharedStore.getFilter(context)) || text.contains(SharedStore.getFilter(context)) ){
-                        SharedStore.setNotiText(context,text);
-                        SharedStore.setNotiSubText(context,subtext);
-                        SharedStore.setNotiPakage(context,packageName);
-                        SharedStore.setNotiTitle(context,title);
-                        Foreground.updateNoit();
-
-                        msg.putExtra("subtext", subtext);
-                        msg.putExtra("title", title);
-                        msg.putExtra("text", text);
-                        msg.putExtra("type","noti");
-
-                        retrofitNoti();
-
-
-                        LocalBroadcastManager.getInstance(context).sendBroadcast(msg);
-                    }
-                }else if (SharedStore.getFilter(context).equals("")){
-                    SharedStore.setNotiText(context,text);
-                    SharedStore.setNotiSubText(context,subtext);
-                    SharedStore.setNotiPakage(context,packageName);
-                    SharedStore.setNotiTitle(context,title);
-                    Foreground.updateNoit();
-
-                    msg.putExtra("subtext", subtext);
-                    msg.putExtra("title", title);
-                    msg.putExtra("text", text);
-                    msg.putExtra("type","noti");
-
-                    retrofitNoti();
-
-
-                    LocalBroadcastManager.getInstance(context).sendBroadcast(msg);
-                }
-
-            }
+//            if (packageName!=getPackageName()){
+//                if (SharedStore.getFilter(context).length()>0 ){
+//                    //여기 수정해야됨
+//                    if (title.contains(SharedStore.getFilter(context)) || text.contains(SharedStore.getFilter(context)) ){
+//                        SharedStore.setNotiText(context,text);
+//                        SharedStore.setNotiSubText(context,subtext);
+//                        SharedStore.setNotiPakage(context,packageName);
+//                        SharedStore.setNotiTitle(context,title);
+//                        Foreground.updateNoit();
+//
+//                        msg.putExtra("subtext", subtext);
+//                        msg.putExtra("title", title);
+//                        msg.putExtra("text", text);
+//                        msg.putExtra("type","noti");
+//
+//                        retrofitNoti();
+//
+//
+//                        LocalBroadcastManager.getInstance(context).sendBroadcast(msg);
+//                    }
+//                }else if (SharedStore.getFilter(context).equals("")){
+//                    SharedStore.setNotiText(context,text);
+//                    SharedStore.setNotiSubText(context,subtext);
+//                    SharedStore.setNotiPakage(context,packageName);
+//                    SharedStore.setNotiTitle(context,title);
+//                    Foreground.updateNoit();
+//
+//                    msg.putExtra("subtext", subtext);
+//                    msg.putExtra("title", title);
+//                    msg.putExtra("text", text);
+//                    msg.putExtra("type","noti");
+//
+//                    retrofitNoti();
+//
+//
+//                    LocalBroadcastManager.getInstance(context).sendBroadcast(msg);
+//                }
+//
+//            }
         }
 
     }
