@@ -16,6 +16,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import java.util.ArrayList;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -28,7 +30,7 @@ public class NotiService extends NotificationListenerService {
     private RetrofitNoti retrofitInterface;
     private String title,text,subtext,packageName;
     private Context context;
-    private Intent msg = new Intent("Msg");
+    private Intent msg;
     public NotiService() {
     }
 
@@ -60,7 +62,7 @@ public class NotiService extends NotificationListenerService {
         super.onNotificationPosted(sbn);
 
         if (SharedStore.getService(context)){
-            String filter = SharedStore.getFilter(context);
+            msg = new Intent("Msg");
             sbn.getNotification();
             Notification notification = sbn.getNotification();
             Bundle extras = sbn.getNotification().extras;
@@ -80,47 +82,31 @@ public class NotiService extends NotificationListenerService {
                 subtext = "서브 텍스트가 없습니다.";
             }
             Log.d("Notifilter",sbn.getNotification().toString());
-//            if (packageName!=getPackageName()){
-//                if (SharedStore.getFilter(context).length()>0 ){
-//                    //여기 수정해야됨
-//                    if (title.contains(SharedStore.getFilter(context)) || text.contains(SharedStore.getFilter(context)) ){
-//                        SharedStore.setNotiText(context,text);
-//                        SharedStore.setNotiSubText(context,subtext);
-//                        SharedStore.setNotiPakage(context,packageName);
-//                        SharedStore.setNotiTitle(context,title);
-//                        Foreground.updateNoit();
-//
-//                        msg.putExtra("subtext", subtext);
-//                        msg.putExtra("title", title);
-//                        msg.putExtra("text", text);
-//                        msg.putExtra("type","noti");
-//
-//                        retrofitNoti();
-//
-//
-//                        LocalBroadcastManager.getInstance(context).sendBroadcast(msg);
-//                    }
-//                }else if (SharedStore.getFilter(context).equals("")){
-//                    SharedStore.setNotiText(context,text);
-//                    SharedStore.setNotiSubText(context,subtext);
-//                    SharedStore.setNotiPakage(context,packageName);
-//                    SharedStore.setNotiTitle(context,title);
-//                    Foreground.updateNoit();
-//
-//                    msg.putExtra("subtext", subtext);
-//                    msg.putExtra("title", title);
-//                    msg.putExtra("text", text);
-//                    msg.putExtra("type","noti");
-//
-//                    retrofitNoti();
-//
-//
-//                    LocalBroadcastManager.getInstance(context).sendBroadcast(msg);
-//                }
-//
-//            }
+
+            SharedStore.setNotiText(context,text);
+            SharedStore.setNotiSubText(context,subtext);
+            SharedStore.setNotiPakage(context,packageName);
+            SharedStore.setNotiTitle(context,title);
+
+            msg.putExtra("subtext", subtext);
+            msg.putExtra("title", title);
+            msg.putExtra("text", text);
+            msg.putExtra("type","noti");
+
+            broadcast();
+            //여기 수정해야됨
+
+            if (SharedStore.getRetrofit(context)){
+
+                retrofitNoti();
+
+            }
+
         }
 
+    }
+    public void broadcast(){
+        LocalBroadcastManager.getInstance(context).sendBroadcast(msg);
     }
 
 
@@ -143,9 +129,24 @@ public class NotiService extends NotificationListenerService {
                         NotificationData notificationData = response.body();
                         boolean status = notificationData.getStatus();
 
-                        SharedStore.setRetrofit(context,true);
+                        ArrayList<String> list = SharedStore.getStringArrayPref(context,"filterkey");
+                        for (int i = 0;i<list.size(); i++){
+                            if (title.contains(list.get(i)) || text.contains(list.get(i)) ){
+                                SharedStore.setNotiText(context,text);
+                                SharedStore.setNotiSubText(context,subtext);
+                                SharedStore.setNotiPakage(context,packageName);
+                                SharedStore.setNotiTitle(context,title);
 
+                                msg.putExtra("subtext", subtext);
+                                msg.putExtra("title", title);
+                                msg.putExtra("text", text);
+                                msg.putExtra("type","noti");
+                            }
+                        }
                         msg.putExtra("tyoe","url");
+                        broadcast();
+
+
                     }
 
                 }
