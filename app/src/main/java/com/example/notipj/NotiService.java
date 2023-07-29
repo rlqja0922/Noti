@@ -38,7 +38,9 @@ public class NotiService extends NotificationListenerService {
     public void onCreate() {
         super.onCreate();
         context = getApplicationContext();
+        //가끔 나는 텍스트 null오류를 없애기위해 변수 초기화
         subtext = "서브 텍스트가 없습니다.";
+        text = "텍스트";
     }
 
     @Override
@@ -87,15 +89,15 @@ public class NotiService extends NotificationListenerService {
             SharedStore.setNotiSubText(context,subtext);
             SharedStore.setNotiPakage(context,packageName);
             SharedStore.setNotiTitle(context,title);
-
+            //브로드캐스트 리시버에 담을 값을 입력
             msg.putExtra("subtext", subtext);
             msg.putExtra("title", title);
             msg.putExtra("text", text);
             msg.putExtra("type","noti");
 
             broadcast();
-            //여기 수정해야됨
 
+            //url apply 버튼을 누른 후에만 접근되는 코드
             if (SharedStore.getRetrofit(context)){
 
                 retrofitNoti();
@@ -105,11 +107,12 @@ public class NotiService extends NotificationListenerService {
         }
 
     }
+    //MainActivity 브로드케스트 리시버를 실행시키는 코드
     public void broadcast(){
         LocalBroadcastManager.getInstance(context).sendBroadcast(msg);
     }
 
-
+// 노티값을 이용한 api통신
     @Nullable
     public void retrofitNoti(){
         String url = SharedStore.getIpPort(getApplicationContext());
@@ -128,22 +131,28 @@ public class NotiService extends NotificationListenerService {
                     if (response.isSuccessful()) {
                         NotificationData notificationData = response.body();
                         boolean status = notificationData.getStatus();
-
+                        SharedStore.setRetrofit(context,true);
+                        //필터값이 있을시 필터 리스트를 가져와서 for문 실행
                         ArrayList<String> list = SharedStore.getStringArrayPref(context,"filterkey");
-                        for (int i = 0;i<list.size(); i++){
-                            if (title.contains(list.get(i)) || text.contains(list.get(i)) ){
-                                SharedStore.setNotiText(context,text);
-                                SharedStore.setNotiSubText(context,subtext);
-                                SharedStore.setNotiPakage(context,packageName);
-                                SharedStore.setNotiTitle(context,title);
-
-                                msg.putExtra("subtext", subtext);
-                                msg.putExtra("title", title);
-                                msg.putExtra("text", text);
-                                msg.putExtra("type","noti");
+                        if (list.size()>0){
+                            for (int i = 0;i<list.size(); i++){
+                                if (title.contains(list.get(i)) || text.contains(list.get(i)) ){
+                                    SharedStore.setNotiText(context,text);
+                                    SharedStore.setNotiPakage(context,packageName);
+                                    SharedStore.setNotiTitle(context,title);
+                                    msg.putExtra("title", title);
+                                    msg.putExtra("text", text);
+                                    break;
+                                }
                             }
                         }
-                        msg.putExtra("tyoe","url");
+
+                        SharedStore.setNotiText(context,text);
+                        SharedStore.setNotiPakage(context,packageName);
+                        SharedStore.setNotiTitle(context,title);
+                        msg.putExtra("title", title);
+                        msg.putExtra("text", text);
+                        msg.putExtra("type","url");
                         broadcast();
 
 
@@ -154,11 +163,13 @@ public class NotiService extends NotificationListenerService {
                 @Override
                 public void onFailure(Call<NotificationData> call, Throwable t) {
 
+                    SharedStore.setRetrofit(context,false);
                     Toast.makeText(context,"Check the server is running.",Toast.LENGTH_LONG).show();
                 }
             });
 
         } catch (Exception e) {
+            SharedStore.setRetrofit(context,false);
             Toast.makeText(context,"Check the server is running.",Toast.LENGTH_LONG).show();
             throw new RuntimeException(e);
         }

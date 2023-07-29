@@ -9,6 +9,9 @@ import org.json.JSONException;
 
 import java.util.ArrayList;
 
+/**
+ * 값들을 SharedPreferences 형태(파일 형태로 저장)
+ */
 public class SharedStore {
     public static String getIpPort(Context context){
         SharedPreferences sharedPreferences = context.getSharedPreferences("MyData",0);

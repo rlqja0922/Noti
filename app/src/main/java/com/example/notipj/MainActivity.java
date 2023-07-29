@@ -58,6 +58,8 @@ public class MainActivity extends AppCompatActivity  {
     private ListFragment fragment;
 
     private FrameLayout fragment_container;
+
+    // 변수 초기화
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,13 +75,16 @@ public class MainActivity extends AppCompatActivity  {
         filter_go = findViewById(R.id.filter_go);
         fragment_container = findViewById(R.id.fragment_container);
         context = getApplicationContext();
+        //리스트 페이지를 액티비티가아닌 프레그먼트를 사용하기위한 프래그먼트 초기화 구문
         fragment = new ListFragment();
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction =  fragmentManager.beginTransaction();
         transaction.replace(R.id.fragment_container, fragment).commitAllowingStateLoss();
         getSupportActionBar().hide();
         fragment_container.setVisibility(View.GONE);
-        service();
+        service(); //앱 시작시 자동으로 서비스 시작
+
+        //필터> 버튼을 누를시 실행되는 코드 프래그번트를 초기화 하며 레이아웃을 나타나게 해줌
         filter_go.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -87,12 +92,14 @@ public class MainActivity extends AppCompatActivity  {
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 FragmentTransaction transaction =  fragmentManager.beginTransaction();
                 transaction.replace(R.id.fragment_container, fragment).commitAllowingStateLoss();
-                fragment_container.setVisibility(View.VISIBLE);
+                fragment_container.setVisibility(View.VISIBLE); //레이아웃 나타내는 코드
             }
         });
         url_et.setText(SharedStore.getIpPort(context));
         apply_st = url_et.getText().toString();
         filter_list = SharedStore.getStringArrayPref(context,filter_key);
+
+        //권한 확인을 위한 코드 안드로이드 버전에 따른 권한 부여(노티 띄우는 권한)
         if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.TIRAMISU){
             if (!NotificationManagerCompat.from(context).areNotificationsEnabled()){
                 if (ContextCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
@@ -111,7 +118,7 @@ public class MainActivity extends AppCompatActivity  {
         }
 
 
-        //Notification 허락 여부 확인
+        //권한 확인을 위한 코드 안드로이드 버전에 따른 권한 부여(노티 정보 읽어오는 권한)
         boolean isPermissionAllowed = isNotiPermissionAllowed();
 
         if(!isPermissionAllowed) {
@@ -119,6 +126,10 @@ public class MainActivity extends AppCompatActivity  {
             Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
             startActivity(intent);
         }
+         /**
+         url apply 버튼 누를시 동작
+        입력창이 비어있을시 토스트 메시지를 출력 , 입력값이 있을경우 해당 url을 저장, 통신을 이용하여 사용가능한 url인지 확인
+          **/
         apply_tv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -126,16 +137,16 @@ public class MainActivity extends AppCompatActivity  {
                     Toast.makeText(context,"URL을 입력해주세요.",Toast.LENGTH_LONG).show();
                 }else {
                     SharedStore.setIpPort(context,url_et.getText().toString());
-                    show();
+                    show(); //얼럿창 띄우는 코드
                 }
             }
         });
+        //필터 add누를시 나오는 코드
         apply_tv2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (filter_et.getText().toString().length()>0)
-                    show2();
-//                SharedStore.setFilter(getApplicationContext(),filter_et.getText().toString());
+                    show2();// 얼럿창 띄우는 코드
             }
         });
     }
@@ -154,6 +165,8 @@ public class MainActivity extends AppCompatActivity  {
     public boolean stopService(Intent name) {
         return super.stopService(name);
     }
+
+    //서비스 동작 코드
     public void service(){
 
         Intent serviceIntent = new Intent(this, Foreground.class);// MyBackgroundService 를 실행하는 인텐트 생성
@@ -216,6 +229,7 @@ public class MainActivity extends AppCompatActivity  {
 
         builder.show();
     }
+    //입력한 url이 맞는 url인지 확인용 api
     @Nullable
     public void urlOk(){
         String url = SharedStore.getIpPort(getApplicationContext());
@@ -266,6 +280,7 @@ public class MainActivity extends AppCompatActivity  {
             String title = intent.getStringExtra("title");
             String text = intent.getStringExtra("text");
             String type = intent.getStringExtra("type");
+            //type값을 이용해서 url이 아닐시 lastnoti의 값을, url일 경우 api request의 값을 변경해준다.
             if (type.equals("url")){
                 textView_api.setText(title);
                 textView_api2.setText(text);
