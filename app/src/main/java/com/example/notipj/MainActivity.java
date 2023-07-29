@@ -76,15 +76,17 @@ public class MainActivity extends AppCompatActivity  {
         fragment = new ListFragment();
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction =  fragmentManager.beginTransaction();
-        transaction.replace(R.id.frameLayout, fragment).commitAllowingStateLoss();
+        transaction.replace(R.id.fragment_container, fragment).commitAllowingStateLoss();
+        getSupportActionBar().hide();
         fragment_container.setVisibility(View.GONE);
+        service();
         filter_go.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 fragment = new ListFragment();
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 FragmentTransaction transaction =  fragmentManager.beginTransaction();
-                transaction.replace(R.id.frameLayout, fragment).commitAllowingStateLoss();
+                transaction.replace(R.id.fragment_container, fragment).commitAllowingStateLoss();
                 fragment_container.setVisibility(View.VISIBLE);
             }
         });
@@ -131,7 +133,8 @@ public class MainActivity extends AppCompatActivity  {
         apply_tv2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                show2();
+                if (filter_et.getText().toString().length()>0)
+                    show2();
 //                SharedStore.setFilter(getApplicationContext(),filter_et.getText().toString());
             }
         });
@@ -152,11 +155,7 @@ public class MainActivity extends AppCompatActivity  {
         return super.stopService(name);
     }
     public void service(){
-        if (filter_et.getText().toString().length()>0){
-            SharedStore.setFilter(context,filter_et.getText().toString());
-        }else {
-            SharedStore.setFilter(context,"");
-        }
+
         Intent serviceIntent = new Intent(this, Foreground.class);// MyBackgroundService 를 실행하는 인텐트 생성
 
         if (SharedStore.getService(context)){
@@ -171,8 +170,9 @@ public class MainActivity extends AppCompatActivity  {
         }else {
             startService(serviceIntent);// 서비스 인텐트를 전달한 서비스 시작 메서드 실행
         }
-        SharedStore.setIpPort(getApplicationContext(),url_et.getText().toString());
 
+        SharedStore.setFirst(context,false);
+        SharedStore.setService(context,true);
         Toast.makeText(context,"서비스가 시작되었습니다.",Toast.LENGTH_LONG).show();
     }
     public void show(){
@@ -234,11 +234,8 @@ public class MainActivity extends AppCompatActivity  {
                     if (response.isSuccessful()) {
                         NotificationData notificationData = response.body();
                         boolean status = notificationData.getStatus();
-                        SharedStore.setFirst(context,false);
-                        SharedStore.setService(context,true);
                         SharedStore.setIpPort(context,apply_st);
-
-                        service();
+                        SharedStore.setRetrofit(context,true);
                     }
 
                 }
@@ -246,12 +243,16 @@ public class MainActivity extends AppCompatActivity  {
                 @Override
                 public void onFailure(Call<NotificationData> call, Throwable t) {
                     Log.e("urlerror",t.getMessage());
+                    textView_api.setText(R.string.api_notext1);
+                    textView_api2.setText(R.string.api_notext2);
                     Toast.makeText(context,"Check the server is running.",Toast.LENGTH_LONG).show();
                 }
             });
 
         } catch (Exception e) {
             Toast.makeText(context,"Check the server is running.",Toast.LENGTH_LONG).show();
+            textView_api.setText(R.string.api_notext1);
+            textView_api2.setText(R.string.api_notext2);
             throw new RuntimeException(e);
         }
     }
@@ -269,12 +270,21 @@ public class MainActivity extends AppCompatActivity  {
                 textView_api.setText(title);
                 textView_api2.setText(text);
             }else {
-                textView_api.setText(R.string.api_notext1);
-                textView_api2.setText(R.string.api_notext2);
+                textView_noti.setText(title);
+                textView_noti2.setText(text);
             }
-            textView_noti.setText(title);
-            textView_noti2.setText(text);
         }
 
     };
+    public interface onBackPressedListener{
+        void onBackPressed();
+    }
+    @Override
+    public void onBackPressed() {
+        if (fragment_container.getVisibility()!=View.GONE){
+            fragment_container.setVisibility(View.GONE);
+        }else {
+            super.onBackPressed();
+        }
+    }
 }

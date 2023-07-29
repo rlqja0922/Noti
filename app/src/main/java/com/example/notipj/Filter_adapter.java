@@ -1,6 +1,10 @@
 package com.example.notipj;
 
+import static com.example.notipj.ListFragment.itemsAdapter;
+import static com.example.notipj.ListFragment.noti;
+
 import android.content.Context;
+import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +14,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -35,12 +40,33 @@ public class Filter_adapter extends ArrayAdapter {
         tvHome.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                list.remove(position);
-                SharedStore.setStringArrayPref(getContext(),"filterkey",list);
+                show(position);
             }
         });
         // Populate the data into the template view using the data object
         // Return the completed view to render on screen
         return convertView;
+    }
+    public void show(int position){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("List Remove");
+        builder.setMessage("Are you sure you want to remove it?");
+        builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                ArrayList list = SharedStore.getStringArrayPref(getContext(),"filterkey");
+                list.remove(position);
+                SharedStore.setStringArrayPref(getContext(),"filterkey",list);
+                noti();
+            }
+        });
+        builder.setNegativeButton("Cancle", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+
+        builder.show();
     }
 }

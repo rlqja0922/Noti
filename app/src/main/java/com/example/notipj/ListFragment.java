@@ -5,6 +5,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,14 +15,16 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 
-public class ListFragment extends Fragment {
+public class ListFragment extends Fragment  implements MainActivity.onBackPressedListener {
     public View v;
-    public Filter_adapter itemsAdapter;
-    public ArrayList<String> filterlist;
-    public ListView listView;
+    public static Filter_adapter itemsAdapter;
+    public static ArrayList<String> filterlist;
+    public static ListView listView;
     public TextView filter_modbt;
+    public MainActivity mainActivity;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,8 +48,8 @@ public class ListFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 filterlist = SharedStore.getStringArrayPref(getContext(), "filterkey");
-                itemsAdapter.notify();
-                onDestroyView();
+                itemsAdapter.notifyDataSetChanged();
+                onBackPressed();
             }
         });
         //SetAdapter를 이용해 ListView와 ArrayAdapter를 연결한다.
@@ -55,5 +58,19 @@ public class ListFragment extends Fragment {
 
         return v;
     }
+    public static void noti(){
+        filterlist.clear();
+        ArrayList list = SharedStore.getStringArrayPref(itemsAdapter.getContext(), "filterkey");
+        filterlist.addAll(list);
+        itemsAdapter = (Filter_adapter) new Filter_adapter(itemsAdapter.getContext(), filterlist);
+        itemsAdapter.notifyDataSetChanged();
+        listView.setAdapter(itemsAdapter);
+    }
 
+    @Override
+    public void onBackPressed() {
+        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+        fragmentManager.beginTransaction().remove(ListFragment.this).commit();
+        fragmentManager.beginTransaction();
+    }
 }
