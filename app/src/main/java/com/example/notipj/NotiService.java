@@ -142,20 +142,12 @@ public class NotiService extends NotificationListenerService {
                                     SharedStore.setNotiTitle(context,title);
                                     msg.putExtra("title", title);
                                     msg.putExtra("text", text);
+                                    msg.putExtra("type","url");
+                                    broadcast();
                                     break;
                                 }
                             }
                         }
-
-                        SharedStore.setNotiText(context,text);
-                        SharedStore.setNotiPakage(context,packageName);
-                        SharedStore.setNotiTitle(context,title);
-                        msg.putExtra("title", title);
-                        msg.putExtra("text", text);
-                        msg.putExtra("type","url");
-                        broadcast();
-
-
                     }
 
                 }

@@ -48,7 +48,7 @@ public class Foreground extends Service  {
                 .setContentTitle(SharedStore.getNotiTitle(context))
                 .setContentText(SharedStore.getNotiText(context))
                 .setOngoing(true)
-                .setSmallIcon(R.drawable.noti);
+                .setSmallIcon(R.drawable.icon);
         return notifyBuilder;
     }
 
@@ -60,7 +60,7 @@ public class Foreground extends Service  {
         title = "Foreground Service";
         subtext = "서비스 실행중입니다.";
         context = getApplicationContext();
-        SharedStore.setNotiTitle(context,"Foreground Service");
+        SharedStore.setNotiTitle(context,"금강컨테이너 입금 알림");
         SharedStore.setNotiText(context,"서비스 실행중입니다.");
         SharedStore.setNotiSubText(context,"서비스 실행중입니다.");
         createNotificationChannel();
