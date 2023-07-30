@@ -294,6 +294,20 @@
                 android:orientation="horizontal" />
 
             <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline1__3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintGuide_percent="0.05"
+                android:orientation="horizontal" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline1___3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintGuide_percent="0.25"
+                android:orientation="horizontal" />
+
+            <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/guideline2_3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -306,6 +320,32 @@
                 app:layout_constraintGuide_percent="0.9"
                 android:orientation="horizontal" />
 
+            <TextView
+                android:id="@+id/textView_noti_package"
+                android:layout_marginEnd="15dp"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:textSize="10dp"
+                android:textColor="@color/gray"
+                android:gravity="right"
+                android:text="No notification"
+                app:layout_constraintBottom_toBottomOf="@+id/guideline1___3"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/guideline1__3" />
+            <TextView
+                android:id="@+id/textView_noti_time"
+                android:layout_marginEnd="15dp"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:textSize="10dp"
+                android:textColor="@color/gray"
+                android:gravity="right"
+                android:text="xx : xx"
+                app:layout_constraintBottom_toBottomOf="@+id/guideline2_3"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/guideline1___3" />
             <TextView
                 android:id="@+id/textView_noti"
                 android:layout_marginStart="15dp"
@@ -399,6 +439,20 @@
                 android:orientation="horizontal" />
 
             <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline1__4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintGuide_percent="0.05"
+                android:orientation="horizontal" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline1___4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintGuide_percent="0.25"
+                android:orientation="horizontal" />
+
+            <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/guideline2_4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -410,7 +464,32 @@
                 android:layout_height="wrap_content"
                 app:layout_constraintGuide_percent="0.9"
                 android:orientation="horizontal" />
-
+            <TextView
+                android:id="@+id/textView_api_package"
+                android:layout_marginEnd="15dp"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:textSize="10dp"
+                android:textColor="@color/gray"
+                android:gravity="right"
+                android:text="No request"
+                app:layout_constraintBottom_toBottomOf="@+id/guideline1___4"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/guideline1__4" />
+            <TextView
+                android:id="@+id/textView_api_time"
+                android:layout_marginEnd="15dp"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:textSize="10dp"
+                android:textColor="@color/gray"
+                android:gravity="right"
+                android:text="xx : xx"
+                app:layout_constraintBottom_toBottomOf="@+id/guideline2_4"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/guideline1___4" />
             <TextView
                 android:id="@+id/textView_api"
                 android:layout_marginStart="15dp"
@@ -434,7 +513,7 @@
                 android:textSize="14dp"
                 android:textColor="@color/black"
                 android:gravity="center_vertical"
-                android:text="Check the server is running."
+                android:text="@string/api_notext2"
                 app:layout_constraintBottom_toTopOf="@+id/guideline3_4"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

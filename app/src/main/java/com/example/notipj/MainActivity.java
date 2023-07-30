@@ -14,8 +14,12 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 
 import android.Manifest;
+import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -25,6 +29,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.speech.tts.TextToSpeech;
@@ -37,6 +42,8 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -48,7 +55,7 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
 public class MainActivity extends AppCompatActivity  {
 
     private EditText url_et, filter_et;
-    private TextView apply_tv,apply_tv2,textView_noti,textView_noti2,textView_api,textView_api2,filter_go;
+    private TextView apply_tv,apply_tv2,textView_noti,textView_noti2,textView_api,textView_api2,filter_go,textView_noti_package,textView_noti_time,textView_api_package,textView_api_time;
     private RetrofitNoti retrofitInterface;
     private String apply_st;
     protected Context context;
@@ -74,6 +81,10 @@ public class MainActivity extends AppCompatActivity  {
         textView_api2 = findViewById(R.id.textView_api2);
         filter_go = findViewById(R.id.filter_go);
         fragment_container = findViewById(R.id.fragment_container);
+        textView_noti_package = findViewById(R.id.textView_noti_package);
+        textView_noti_time = findViewById(R.id.textView_noti_time);
+        textView_api_package = findViewById(R.id.textView_api_package);
+        textView_api_time = findViewById(R.id.textView_api_time);
         context = getApplicationContext();
         //리스트 페이지를 액티비티가아닌 프레그먼트를 사용하기위한 프래그먼트 초기화 구문
         fragment = new ListFragment();
@@ -82,7 +93,14 @@ public class MainActivity extends AppCompatActivity  {
         transaction.replace(R.id.fragment_container, fragment).commitAllowingStateLoss();
         getSupportActionBar().hide();
         fragment_container.setVisibility(View.GONE);
-        service(); //앱 시작시 자동으로 서비스 시작
+        Timer serviceTimer = new Timer();
+        TimerTask serviceTimerTask = new TimerTask() {
+            @Override
+            public void run() {
+                service(); //앱 시작시 자동으로 서비스 시작
+            }
+        };
+        serviceTimer.schedule(serviceTimerTask,2000);
 
         //필터> 버튼을 누를시 실행되는 코드 프래그번트를 초기화 하며 레이아웃을 나타나게 해줌
         filter_go.setOnClickListener(new View.OnClickListener() {
@@ -136,7 +154,6 @@ public class MainActivity extends AppCompatActivity  {
                 if (url_et.getText().toString().length()==0){
                     Toast.makeText(context,"URL을 입력해주세요.",Toast.LENGTH_LONG).show();
                 }else {
-                    SharedStore.setIpPort(context,url_et.getText().toString());
                     show(); //얼럿창 띄우는 코드
                 }
             }
@@ -169,24 +186,46 @@ public class MainActivity extends AppCompatActivity  {
     //서비스 동작 코드
     public void service(){
 
-        Intent serviceIntent = new Intent(this, Foreground.class);// MyBackgroundService 를 실행하는 인텐트 생성
+        Intent serviceIntent = new Intent(context, Foreground.class);// MyBackgroundService 를 실행하는 인텐트 생성
 
         if (SharedStore.getService(context)){
             stopService(serviceIntent);
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if(isServiceRunningCheck()){
+                        context.startForegroundService(serviceIntent);
+                    }
+                }
+            },100);
 
-        //Notification-카카오톡 메세지 수신 대기
-        LocalBroadcastManager.getInstance(this).registerReceiver(onNotice, new IntentFilter("Msg"));
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) { // 현재 안드로이드 버전 점검
-            startForegroundService(serviceIntent);// 서비스 인텐트를 전달한 foregroundService 시작 메서드 실행
-        }else {
-            startService(serviceIntent);// 서비스 인텐트를 전달한 서비스 시작 메서드 실행
+        } else {
+            if(isServiceRunningCheck()){
+                context.startService(serviceIntent);
+            }
         }
 
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+//            OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(Foreground.class).addTag ( "BACKUP_WORKER_TAG" ).build ();
+//            WorkManager.getInstance ( context ).enqueue ( request );
+//        } else
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {// 현재 안드로이드 버전 점검
+//            context.startForegroundService ( serviceIntent );// 서비스 인텐트를 전달한 서비스 시작 메서드 실행
+//        } else {
+//            context.startService ( serviceIntent );// 서비스 인텐트를 전달한 서비스 시작 메서드 실행
+//        }
+
         SharedStore.setFirst(context,false);
-        SharedStore.setService(context,true);
-        Toast.makeText(context,"서비스가 시작되었습니다.",Toast.LENGTH_LONG).show();
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run()
+            {
+                Toast.makeText(context,"서비스가 시작되었습니다.",Toast.LENGTH_LONG).show();
+            }
+        }, 0);
     }
     public void show(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -232,7 +271,7 @@ public class MainActivity extends AppCompatActivity  {
     //입력한 url이 맞는 url인지 확인용 api
     @Nullable
     public void urlOk(){
-        String url = SharedStore.getIpPort(getApplicationContext());
+        String url = url_et.getText().toString();
         try {
             retrofit2.Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl(url)
@@ -246,6 +285,7 @@ public class MainActivity extends AppCompatActivity  {
                 @Override
                 public void onResponse(Call<NotificationData> call, Response<NotificationData> response) {
                     if (response.isSuccessful()) {
+                        SharedStore.setIpPort(context,url_et.getText().toString());
                         NotificationData notificationData = response.body();
                         boolean status = notificationData.getStatus();
                         SharedStore.setIpPort(context,apply_st);
@@ -259,15 +299,18 @@ public class MainActivity extends AppCompatActivity  {
                     Log.e("urlerror",t.getMessage());
                     textView_api.setText(R.string.api_notext1);
                     textView_api2.setText(R.string.api_notext2);
-                    Toast.makeText(context,"Check the server is running.",Toast.LENGTH_LONG).show();
+                    textView_api_package.setText(R.string.api_notext1);
+                    textView_api_time.setText("xx : xx");
+                    Toast.makeText(context,R.string.api_notext2,Toast.LENGTH_LONG).show();
                 }
             });
 
         } catch (Exception e) {
-            Toast.makeText(context,"Check the server is running.",Toast.LENGTH_LONG).show();
+            Toast.makeText(context,R.string.api_notext2,Toast.LENGTH_LONG).show();
             textView_api.setText(R.string.api_notext1);
             textView_api2.setText(R.string.api_notext2);
-            throw new RuntimeException(e);
+            textView_api_package.setText(R.string.api_notext1);
+            textView_api_time.setText("xx : xx");
         }
     }
     //noti listener 감지시 동작할 브로트캐스트 리시버
@@ -280,13 +323,19 @@ public class MainActivity extends AppCompatActivity  {
             String title = intent.getStringExtra("title");
             String text = intent.getStringExtra("text");
             String type = intent.getStringExtra("type");
+            String time = intent.getStringExtra("time");
+            String packagename = intent.getStringExtra("pakagename");
             //type값을 이용해서 url이 아닐시 lastnoti의 값을, url일 경우 api request의 값을 변경해준다.
             if (type.equals("url")){
                 textView_api.setText(title);
                 textView_api2.setText(text);
+                textView_api_package.setText(packagename);
+                textView_api_time.setText(time);
             }else {
                 textView_noti.setText(title);
                 textView_noti2.setText(text);
+                textView_noti_package.setText(packagename);
+                textView_noti_time.setText(time);
             }
         }
 
@@ -301,5 +350,15 @@ public class MainActivity extends AppCompatActivity  {
         }else {
             super.onBackPressed();
         }
+    }
+    public boolean isServiceRunningCheck() {
+        ActivityManager manager = (ActivityManager) context.getSystemService(Activity.ACTIVITY_SERVICE);
+
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (!"com.example.notipj.Foreground".equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }
