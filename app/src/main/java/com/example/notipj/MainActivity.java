@@ -107,7 +107,6 @@ public class MainActivity extends AppCompatActivity  {
         });
         url_et.setText(SharedStore.getIpPort(context));
         apply_st = url_et.getText().toString();
-        filter_list = SharedStore.getStringArrayPref(context,filter_key);
 
         //권한 확인을 위한 코드 안드로이드 버전에 따른 권한 부여(노티 띄우는 권한)
         if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.TIRAMISU){
@@ -136,18 +135,23 @@ public class MainActivity extends AppCompatActivity  {
             Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
             startActivity(intent);
         }
-
-        Timer serviceTimer = new Timer();
-        TimerTask serviceTimerTask = new TimerTask() {
+        new Thread(new Runnable() {
             @Override
             public void run() {
-                if (isPermissionAllowed){
-                    service(); //앱 시작시 자동으로 서비스 시작
+                while (true) {
+                    try {
+                        if (isPermissionAllowed){
+                            service(); //앱 시작시 자동으로 서비스 시작
+                            Thread.interrupted();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
                 }
-                serviceTimer.cancel();
             }
-        };
-        serviceTimer.schedule(serviceTimerTask,1000,1000);
+        }).start();
+
          /**
          url apply 버튼 누를시 동작
         입력창이 비어있을시 토스트 메시지를 출력 , 입력값이 있을경우 해당 url을 저장, 통신을 이용하여 사용가능한 url인지 확인
@@ -258,6 +262,7 @@ public class MainActivity extends AppCompatActivity  {
         builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                filter_list = SharedStore.getStringArrayPref(context,filter_key);
                 filter_list.add(filter_et.getText().toString());
                 SharedStore.setStringArrayPref(context,filter_key,filter_list);
                 filter_et.setText("");
@@ -358,7 +363,7 @@ public class MainActivity extends AppCompatActivity  {
         ActivityManager manager = (ActivityManager) context.getSystemService(Activity.ACTIVITY_SERVICE);
 
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (!"com.example.notipj.Foreground".equals(service.service.getClassName())) {
+            if ("com.example.notipj.Foreground".equals(service.service.getClassName())) {
                 return true;
             }
         }
