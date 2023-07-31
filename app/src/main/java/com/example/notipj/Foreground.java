@@ -56,11 +56,6 @@ public class Foreground extends Service  {
     // startService() 혹은  startForegroundService() 를 호출하여 서비스를 시작할때마다 호출됨
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            stopForeground(true);
-        } else {
-            stopSelf();
-        }
         SharedStore.setService(getApplicationContext(),true);
         title = "Foreground Service";
         subtext = "서비스 실행중입니다.";
@@ -86,7 +81,7 @@ public class Foreground extends Service  {
         .setPriority(NotificationCompat.PRIORITY_HIGH);
         // Manager를 통해 notification 디바이스로 전달
         mNotificationManager.notify(id,notifyBuilder.build());
-
+        startForeground(id,notifyBuilder.build());
         SharedStore.setService(context,true);
 //        //do heavy work on a background thread 서비스가 잘돌아가는지 확인용 쓰레드
 //        new Thread(new Runnable() {

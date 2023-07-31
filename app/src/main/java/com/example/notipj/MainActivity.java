@@ -192,21 +192,18 @@ public class MainActivity extends AppCompatActivity  {
 
         Intent serviceIntent = new Intent(context, Foreground.class);// MyBackgroundService 를 실행하는 인텐트 생성
 
-        if (SharedStore.getService(context)){
-            stopService(serviceIntent);
-        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    if(isServiceRunningCheck()){
+                    if(!isServiceRunningCheck()){
                         context.startForegroundService(serviceIntent);
                     }
                 }
             },100);
 
         } else {
-            if(isServiceRunningCheck()){
+            if(!isServiceRunningCheck()){
                 context.startService(serviceIntent);
             }
         }
