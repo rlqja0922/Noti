@@ -87,16 +87,22 @@ public class NotiService extends NotificationListenerService {
                 packageName = sbn.getPackageName();
                 time = getTime();
 
+                if (extras.getCharSequence(Notification.EXTRA_TITLE)!=null){
+                    title = extras.getCharSequence(Notification.EXTRA_TITLE).toString();
+                }else {
+                    title = "Title이 존재하지 않습니다.";
+                }
+
                 if (extras.getCharSequence(Notification.EXTRA_TEXT)!=null){
                     text = extras.getCharSequence(Notification.EXTRA_TEXT).toString();
                 }else {
-                    text = "텍스트가 없습니다.";
+                    text = "Text가 없습니다.";
                 }
 
                 if (extras.getCharSequence(Notification.EXTRA_SUB_TEXT)!=null){
                     subtext = extras.getCharSequence(Notification.EXTRA_SUB_TEXT).toString();
                 }else {
-                    subtext = "서브 텍스트가 없습니다.";
+                    subtext = "Sub Text가 없습니다.";
                 }
                 Log.d("Notifilter",sbn.getNotification().toString());
 
@@ -156,8 +162,8 @@ public class NotiService extends NotificationListenerService {
                         ArrayList<String> list = SharedStore.getStringArrayPref(context,"filterkey");
                         if (list.size()>0){
                             for (int i = 0;i<list.size(); i++){
-                                if(!title.equals(null)&&!text.equals(null)){
-                                    if (title.contains(list.get(i)) || text.contains(list.get(i)) ){
+                                if(!title.equals(null)&&!text.equals(null)&&!title.equals(null)){
+                                    if (title.contains(list.get(i)) || text.contains(list.get(i)) || packageName.contains(list.get(i))){
                                         SharedStore.setNotiText(context,text);
                                         SharedStore.setNotiPakage(context,packageName);
                                         SharedStore.setNotiTitle(context,title);

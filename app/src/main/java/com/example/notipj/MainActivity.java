@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity  {
                 service(); //앱 시작시 자동으로 서비스 시작
             }
         };
-        serviceTimer.schedule(serviceTimerTask,2000);
+        serviceTimer.schedule(serviceTimerTask,1000);
 
         //필터> 버튼을 누를시 실행되는 코드 프래그번트를 초기화 하며 레이아웃을 나타나게 해줌
         filter_go.setOnClickListener(new View.OnClickListener() {
@@ -206,6 +206,9 @@ public class MainActivity extends AppCompatActivity  {
                 context.startService(serviceIntent);
             }
         }
+        //Notification-메세지 수신 대기
+        LocalBroadcastManager.getInstance(this).registerReceiver(onNotice, new IntentFilter("Msg"));
+
 
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
 //            OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(Foreground.class).addTag ( "BACKUP_WORKER_TAG" ).build ();
@@ -324,7 +327,7 @@ public class MainActivity extends AppCompatActivity  {
             String text = intent.getStringExtra("text");
             String type = intent.getStringExtra("type");
             String time = intent.getStringExtra("time");
-            String packagename = intent.getStringExtra("pakagename");
+            String packagename = intent.getStringExtra("packagename");
             //type값을 이용해서 url이 아닐시 lastnoti의 값을, url일 경우 api request의 값을 변경해준다.
             if (type.equals("url")){
                 textView_api.setText(title);
