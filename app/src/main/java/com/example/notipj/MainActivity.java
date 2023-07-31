@@ -93,14 +93,6 @@ public class MainActivity extends AppCompatActivity  {
         transaction.replace(R.id.fragment_container, fragment).commitAllowingStateLoss();
         getSupportActionBar().hide();
         fragment_container.setVisibility(View.GONE);
-        Timer serviceTimer = new Timer();
-        TimerTask serviceTimerTask = new TimerTask() {
-            @Override
-            public void run() {
-                service(); //앱 시작시 자동으로 서비스 시작
-            }
-        };
-        serviceTimer.schedule(serviceTimerTask,1000);
 
         //필터> 버튼을 누를시 실행되는 코드 프래그번트를 초기화 하며 레이아웃을 나타나게 해줌
         filter_go.setOnClickListener(new View.OnClickListener() {
@@ -144,6 +136,18 @@ public class MainActivity extends AppCompatActivity  {
             Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
             startActivity(intent);
         }
+
+        Timer serviceTimer = new Timer();
+        TimerTask serviceTimerTask = new TimerTask() {
+            @Override
+            public void run() {
+                if (isPermissionAllowed){
+                    service(); //앱 시작시 자동으로 서비스 시작
+                }
+                serviceTimer.cancel();
+            }
+        };
+        serviceTimer.schedule(serviceTimerTask,1000,1000);
          /**
          url apply 버튼 누를시 동작
         입력창이 비어있을시 토스트 메시지를 출력 , 입력값이 있을경우 해당 url을 저장, 통신을 이용하여 사용가능한 url인지 확인
@@ -291,7 +295,6 @@ public class MainActivity extends AppCompatActivity  {
                         SharedStore.setIpPort(context,url_et.getText().toString());
                         NotificationData notificationData = response.body();
                         boolean status = notificationData.getStatus();
-                        SharedStore.setIpPort(context,apply_st);
                         SharedStore.setRetrofit(context,true);
                     }
 
