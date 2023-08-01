@@ -135,22 +135,17 @@ public class MainActivity extends AppCompatActivity  {
             Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
             startActivity(intent);
         }
-        new Thread(new Runnable() {
+        Timer serviceTimer = new Timer();
+        TimerTask serviceTimerTask = new TimerTask() {
             @Override
             public void run() {
-                while (true) {
-                    try {
-                        if (isPermissionAllowed){
-                            service(); //앱 시작시 자동으로 서비스 시작
-                            Thread.interrupted();
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
+                if (isPermissionAllowed){
+                    service(); //앱 시작시 자동으로 서비스 시작
                 }
+                serviceTimer.cancel();
             }
-        }).start();
+        };
+        serviceTimer.schedule(serviceTimerTask,1000,3000);
 
          /**
          url apply 버튼 누를시 동작
@@ -211,8 +206,6 @@ public class MainActivity extends AppCompatActivity  {
                 context.startService(serviceIntent);
             }
         }
-        //Notification-메세지 수신 대기
-        LocalBroadcastManager.getInstance(this).registerReceiver(onNotice, new IntentFilter("Msg"));
 
 
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -231,6 +224,8 @@ public class MainActivity extends AppCompatActivity  {
             @Override
             public void run()
             {
+                //Notification-메세지 수신 대기
+                LocalBroadcastManager.getInstance(context).registerReceiver(onNotice, new IntentFilter("Msg"));
                 Toast.makeText(context,"서비스가 시작되었습니다.",Toast.LENGTH_LONG).show();
             }
         }, 0);

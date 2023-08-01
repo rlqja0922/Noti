@@ -75,7 +75,7 @@ public class NotiService extends NotificationListenerService {
     public void onNotificationPosted(StatusBarNotification sbn) {
         super.onNotificationPosted(sbn);
 //com.example.notipj ,com.android.systemui
-        if (!sbn.getPackageName().equals("com.example.notipj")&&!sbn.getPackageName().equals("com.android.systemui")){
+        if (!sbn.getPackageName().equals("com.example.notipj")&&!sbn.getPackageName().equals("com.android.systemui")&&!sbn.getPackageName().contains("com.android.")){
 
             if (SharedStore.getService(context)){
                 msg = new Intent("Msg");
