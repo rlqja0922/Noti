@@ -81,23 +81,8 @@ public class Foreground extends Service  {
         .setPriority(NotificationCompat.PRIORITY_HIGH);
         // Manager를 통해 notification 디바이스로 전달
         mNotificationManager.notify(id,notifyBuilder.build());
-        startForeground(id,notifyBuilder.build());
+        startForeground(id,notifyBuilder.build()); //Foreground Service 시작
         SharedStore.setService(context,true);
-//        //do heavy work on a background thread 서비스가 잘돌아가는지 확인용 쓰레드
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                while (true) {
-//                    Log.e("Service", "서비스가 실행 중입니다...");
-//                    try {
-//                        Thread.sleep(2000);
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
-//
-//                }
-//            }
-//        }).start();
         return START_NOT_STICKY;
     }
 
