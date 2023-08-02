@@ -124,7 +124,22 @@ public class NotiService extends NotificationListenerService {
                 if (SharedStore.getRetrofit(context)){
                     ArrayList<String> list = SharedStore.getStringArrayPref(context,"filterkey");
                     if (list.size()>0){
-                        retrofitNoti();
+                        for (int i = 0;i<list.size(); i++){
+                            if(!title.equals(null)&&!text.equals(null)&&!title.equals(null)){
+                                if (title.contains(list.get(i)) || text.contains(list.get(i)) || packageName.contains(list.get(i))){
+                                    SharedStore.setNotiText(context,text);
+                                    SharedStore.setNotiPakage(context,packageName);
+                                    SharedStore.setNotiTitle(context,title);
+                                    msg.putExtra("title", title);
+                                    msg.putExtra("text", text);
+                                    msg.putExtra("packagename",packageName);
+                                    msg.putExtra("time",time);
+                                    msg.putExtra("type","url");
+                                    retrofitNoti();
+                                    break;
+                                }
+                            }
+                        }
                     }
 
                 }
@@ -158,30 +173,9 @@ public class NotiService extends NotificationListenerService {
                         NotificationData notificationData = response.body();
                         boolean status = notificationData.getStatus();
                         SharedStore.setRetrofit(context,true);
-                        //필터값이 있을시 필터 리스트를 가져와서 for문 실행
-                        ArrayList<String> list = SharedStore.getStringArrayPref(context,"filterkey");
-                        if (list.size()>0){
-                            for (int i = 0;i<list.size(); i++){
-                                if(!title.equals(null)&&!text.equals(null)&&!title.equals(null)){
-                                    if (title.contains(list.get(i)) || text.contains(list.get(i)) || packageName.contains(list.get(i))){
-                                        SharedStore.setNotiText(context,text);
-                                        SharedStore.setNotiPakage(context,packageName);
-                                        SharedStore.setNotiTitle(context,title);
-                                        msg.putExtra("title", title);
-                                        msg.putExtra("text", text);
-                                        msg.putExtra("packagename",packageName);
-                                        msg.putExtra("time",time);
-                                        msg.putExtra("type","url");
-                                        broadcast();
-                                        break;
-                                    }
-                                }
-                            }
-                        }
+                        broadcast();
                     }
-
                 }
-
                 @Override
                 public void onFailure(Call<NotificationData> call, Throwable t) {
                     SharedStore.setRetrofit(context,false);
