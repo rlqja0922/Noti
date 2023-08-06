@@ -208,16 +208,6 @@ public class MainActivity extends AppCompatActivity  {
         }
 
 
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-//            OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(Foreground.class).addTag ( "BACKUP_WORKER_TAG" ).build ();
-//            WorkManager.getInstance ( context ).enqueue ( request );
-//        } else
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {// 현재 안드로이드 버전 점검
-//            context.startForegroundService ( serviceIntent );// 서비스 인텐트를 전달한 서비스 시작 메서드 실행
-//        } else {
-//            context.startService ( serviceIntent );// 서비스 인텐트를 전달한 서비스 시작 메서드 실행
-//        }
-
         SharedStore.setFirst(context,false);
         Handler handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(new Runnable() {
@@ -257,6 +247,7 @@ public class MainActivity extends AppCompatActivity  {
         builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                //add 다이얼로그 ok를 누를시 텍스트를 지워주고 리스트에 그값을 추가 해준다.
                 filter_list = SharedStore.getStringArrayPref(context,filter_key);
                 filter_list.add(filter_et.getText().toString());
                 SharedStore.setStringArrayPref(context,filter_key,filter_list);
@@ -292,14 +283,14 @@ public class MainActivity extends AppCompatActivity  {
                         SharedStore.setIpPort(context,url_et.getText().toString());
                         NotificationData notificationData = response.body();
                         boolean status = notificationData.getStatus();
-                        SharedStore.setRetrofit(context,true);
+                        SharedStore.setRetrofit(context,true); //url 저장
                     }
 
                 }
 
                 @Override
                 public void onFailure(Call<NotificationData> call, Throwable t) {
-                    Log.e("urlerror",t.getMessage());
+//                    Log.e("urlerror",t.getMessage());
                     textView_api.setText(R.string.api_notext1);
                     textView_api2.setText(R.string.api_notext2);
                     textView_api_package.setText(R.string.api_notext1);
@@ -348,13 +339,14 @@ public class MainActivity extends AppCompatActivity  {
     }
     @Override
     public void onBackPressed() {
-        if (fragment_container.getVisibility()!=View.GONE){
+        if (fragment_container.getVisibility()!=View.GONE){ //리스트 관리 페이지가 틀어져있을경우 뒤로가기 기능 실행시 리스트 관리 페이지가 사라지는 코드
             fragment_container.setVisibility(View.GONE);
         }else {
             super.onBackPressed();
         }
     }
     public boolean isServiceRunningCheck() {
+        //서비스 실행중인지 확인하는 코드 중복실행오류를 방지하기 위한 코드
         ActivityManager manager = (ActivityManager) context.getSystemService(Activity.ACTIVITY_SERVICE);
 
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {

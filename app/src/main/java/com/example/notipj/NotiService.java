@@ -54,7 +54,7 @@ public class NotiService extends NotificationListenerService {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.i("NotificationListener", "onDestroy()");
+//        Log.i("NotificationListener", "onDestroy()");
     }
     @Override
     public void onListenerConnected() {
@@ -64,7 +64,7 @@ public class NotiService extends NotificationListenerService {
     @Override
     public void onNotificationRemoved(StatusBarNotification sbn) {
         super.onNotificationRemoved(sbn);
-        Log.d("Notiremove",sbn.getNotification().toString());
+//        Log.d("Notiremove",sbn.getNotification().toString());
     }
     public String getTime(){
         mNow = System.currentTimeMillis();
@@ -74,7 +74,7 @@ public class NotiService extends NotificationListenerService {
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
         super.onNotificationPosted(sbn);
-//com.example.notipj ,com.android.systemui
+//com.example.notipj ,com.android.systemui 등 앱 자기자신, 시스템 noti등을 무시하는 로직
         if (!sbn.getPackageName().equals("com.example.notipj")&&!sbn.getPackageName().equals("com.android.systemui")&&!sbn.getPackageName().contains("com.android.")){
 
             if (SharedStore.getService(context)){
@@ -86,7 +86,7 @@ public class NotiService extends NotificationListenerService {
                 title = extras.getString(Notification.EXTRA_TITLE);
                 packageName = sbn.getPackageName();
                 time = getTime();
-
+                // 가끔 서비스 자체 문제로 타이틀 텍스트등이 null값이 들어오기 떄문에 그 버그를 방지하기 위한 코드
                 if (extras.getCharSequence(Notification.EXTRA_TITLE)!=null){
                     title = extras.getCharSequence(Notification.EXTRA_TITLE).toString();
                 }else {
@@ -104,7 +104,7 @@ public class NotiService extends NotificationListenerService {
                 }else {
                     subtext = "Sub Text가 없습니다.";
                 }
-                Log.d("Notifilter",sbn.getNotification().toString());
+//                Log.d("Notifilter",sbn.getNotification().toString());
 
                 SharedStore.setNotiText(context,text);
                 SharedStore.setNotiSubText(context,subtext);
